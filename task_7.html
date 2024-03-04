@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <title>Task 7</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+
+    <style>
+        form{
+            border: 0.5px solid black;
+            border-radius: 5px;
+            padding: 5px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        h3{
+            text-align: center;
+            color: rgb(89, 89, 246);
+            margin-bottom: 20px;
+        }
+        label{
+            font-size: 1.3rem;
+        }
+        input{
+            border: 0.5px solid rgb(122, 120, 120);
+            border-radius: 5px;
+            padding: 3px;
+            text-align: center;
+        }
+        #button{
+            background-color: rgb(89, 89, 246);
+            color: white;
+            font-size: 1.2rem;
+            padding: 5px;
+            transform: scale(1);
+            transition: ease 0.9s;
+        }
+        #button:hover{
+            transform: scale(1.1);
+        }
+        button{
+            margin-top: 30px;
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            color: white;
+            background-color: rgb(89, 89, 246);
+            transform: scale(1);
+            transition: ease 0.9s;
+        }
+        button:hover{
+            transform: scale(1.1);
+        }
+        .buttons{
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-4">
+                        <form action="" method="post">
+                            <h3>Create Person</h3>
+                            <label for="name">First Name </label>
+                            <br>
+                            <input id="name" type="text" name="firstname" placeholder="Enter Your First Name"><br>
+                            <br>
+                            <label for="surname">Surname </label>
+                            <br>
+                            <input id="surname" type="text" name="surname" placeholder="Enter Your Surname"><br>
+                            <br>
+                            <label for="email">Email Address </label>
+                            <br>
+                            <input id="email" type="email" name="email" placeholder="Enter Your Email Address"><br>
+                            <br>
+                            <label for="datebirth">Date of Birth </label>
+                            <br>
+                            <input id="datebirth" type="date" name="dob"><br>
+                            <br>
+                            <label for="age">Age </label>
+                            <br>
+                            <input id="age" type="number" name="age" placeholder="Enter Your Age"><br>
+                            <br>
+                            <input id="button" type="submit" value="submit">
+                        </form>
+                        <div class="buttons">
+                            <a href="#"><button id="generate">Generate 10</button></a>
+                            <a href="task_7table.php"><button>View All People</button></a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Birthday script to grey out future dates
+        var today = new Date().toISOString().split('T')[0];
+        document.getElementById('datebirth').setAttribute('max', today);
+
+
+
+        // to post data to the php script
+        document.getElementById('button').addEventListener("click", function (event) {
+        event.preventDefault();
+
+        var name = document.getElementById("name").value;
+        var surname = document.getElementById("surname").value;
+        var datebirth = document.getElementById("datebirth").value;
+        var email = document.getElementById("email").value;
+        var age = document.getElementById("age").value;
+
+        // Basic email validation
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter a valid email address',
+                });
+                return;
+            }
+
+        var params =
+            "firstname=" + encodeURIComponent(name) +
+            "&surname=" + encodeURIComponent(surname) +
+            "&dob=" + encodeURIComponent(datebirth) +
+            "&email=" + encodeURIComponent(email) +
+            "&age=" + encodeURIComponent(age);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "task_7.php", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        xhr.onload = function () {
+        if (xhr.status === 200) {
+            // Display SweetAlert for success or failure
+            if (xhr.responseText.includes('Successfully created a person')) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Person created successfully',
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Failed to create person',
+                });
+            }
+        }
+    };
+
+         xhr.send(params);
+});
+
+
+
+$(document).ready(function () {
+    $("#generate").click(function () {
+        $.ajax({
+            url: 'task_6.php',
+            type: 'POST',
+            data: {
+                action: 'generate'
+            },
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '10 People generated!',
+                    text: response,
+                }).then(() => {
+                    location.reload();
+                });
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Failed to generate people',
+                });
+            }
+        });
+    });
+});
+
+    </script>
+</body>
+</html>
